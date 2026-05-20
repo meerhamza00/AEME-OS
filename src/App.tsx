@@ -153,7 +153,7 @@ function Dashboard() {
               Learn how to master AEME OS, from data injection to autonomous workflows.
             </p>
             <a 
-              href="https://github.com/your-username/aeme-os/blob/main/USER_GUIDE.md" 
+              href="https://github.com/meerhamza00/AEME-OS/blob/main/USER_GUIDE.md" 
               target="_blank" 
               rel="noopener noreferrer"
               className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-sans rounded-lg transition-colors border border-neutral-700"

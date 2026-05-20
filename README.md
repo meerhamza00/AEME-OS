@@ -51,11 +51,11 @@ DATABASE_URL="postgres://user:password@host:port/db"
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/your-username/aeme-os.git
+   git clone https://github.com/meerhamza00/AEME-OS.git
    ```
 2. Navigate to the directory:
    ```bash
-   cd aeme-os
+   cd AEME-OS
    ```
 3. Install dependencies:
    ```bash
