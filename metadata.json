@@ -1,0 +1,6 @@
+{
+  "name": "AEME OS",
+  "description": "Autonomous Enterprise Metamorphosis Engine - Decision OS for Ecommerce",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
