@@ -1,20 +1,83 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# AEME OS: The Sovereign Strategist
+An Autonomous Enterprise Metamorphosis Engine for E-commerce
 
-# Run and deploy your AI Studio app
+AEME defines a new category: **Autonomous Ecommerce Decision Operating Systems (EDOS)**. It compresses the e-commerce growth cycle from reactive spreadsheets into a continuously learning decision engine.
 
-This contains everything you need to run your app locally.
+Unlike traditional dashboards that tell you "what happened", AEME simulates futures, governs risk, and proposes precise executable actions for growth.
 
-View your app in AI Studio: https://ai.studio/apps/36d423d1-db46-4683-a503-d7ae2e112b7c
+## Core Modules
 
-## Run Locally
+1. **Memory Engine**
+   Retrieves business intelligence, brand memory, and external knowledge using vector search and embeddings.
+2. **PPC Intelligence**
+   Ingests and analyzes live Amazon Ads and Shopify performance data to surface immediate operational inefficiencies.
+3. **Simulation Engine**
+   Tests strategic changes (e.g., "What if I increase the SP-Core bid by 20%?") via Monte Carlo-style modeling to predict ROAS, Sales, and Risk Outcomes before execution.
+4. **Strategic Chat System**
+   A high-fidelity AI companion that does not just converse, but formulates structured actionable strategy based on the e-commerce ecosystem's data lake.
+5. **Autonomy Control Plane**
+   A continuously running daemon analyzing metrics to queue optimized workflow proposals autonomously.
+6. **Governance Layer**
+   The safety net: Executable operations and workflows proposed by the Autonomy or Strategic layers are held for Human-in-the-loop audit and approval.
 
-**Prerequisites:**  Node.js
+## Technology Stack
 
+- **Frontend:** React 18, Vite, Tailwind CSS, Lucide Icons
+- **Backend:** Express, Node.js
+- **AI Core:** Google Gemini (`gemini-2.5-flash`, `text-embedding-004`) via `@google/genai`
+- **Authentication:** Clerk (`@clerk/clerk-react`)
+- **Database (Simulated via lib/db):** PostgreSQL with `pgvector`
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Getting Started
+
+### Prerequisites
+
+You need [Node.js](https://nodejs.org/) installed along with `npm`.
+
+### Environment Variables
+
+Configure your `.env` file referencing `.env.example`:
+
+```env
+GEMINI_API_KEY="your-gemini-api-key"
+VITE_CLERK_PUBLISHABLE_KEY="your-clerk-publishable-key"
+CLERK_SECRET_KEY="your-clerk-secret-key"
+DATABASE_URL="postgres://user:password@host:port/db"
+```
+
+### Installation
+
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/your-username/aeme-os.git
+   ```
+2. Navigate to the directory:
+   ```bash
+   cd aeme-os
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+### Development
+
+To run the application in a local development environment (with hot module replacement for UI and server components compiled by `tsx`):
+
+```bash
+npm run dev
+```
+
+### Production Build
+
+To build the client SPA and bundled Express backend for production:
+
+```bash
+npm run build
+```
+
+Then start the production server:
+
+```bash
+npm run start
+```
