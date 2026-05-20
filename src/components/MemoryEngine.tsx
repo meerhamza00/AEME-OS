@@ -81,13 +81,19 @@ export function MemoryEngine() {
   return (
     <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-sm text-neutral-200">
       <div className="p-4 border-b border-neutral-800 flex items-center justify-between">
-        <h2 className="text-sm font-mono text-neutral-300 flex items-center gap-2">
-          <Database className="w-4 h-4 text-indigo-400" />
-          Memory Engine
-        </h2>
+        <div>
+          <h2 className="text-sm font-mono text-neutral-300 flex items-center gap-2">
+            <Database className="w-4 h-4 text-indigo-400" />
+            Memory Engine
+          </h2>
+          <p className="text-xs font-sans text-neutral-500 mt-1 max-w-xl">
+             Upload brand guidelines, successful ad copy, or past strategies. AEME vectorizes learning to align future autonomous decisions with your unique enterprise voice.
+          </p>
+        </div>
         <button 
           onClick={handleInit}
-          className="text-xs bg-neutral-800 hover:bg-neutral-700 text-neutral-400 px-3 py-1 rounded transition-colors flex items-center gap-1"
+          className="text-xs bg-neutral-800 hover:bg-neutral-700 text-neutral-300 px-3 py-1.5 rounded transition-colors flex items-center gap-1.5 shadow-sm border border-neutral-700"
+          title="Setup local database tables and pgvector limits"
         >
            Run DB Migrations
         </button>

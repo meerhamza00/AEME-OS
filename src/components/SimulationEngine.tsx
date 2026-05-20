@@ -42,10 +42,15 @@ export function SimulationEngine() {
   return (
     <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-sm text-neutral-200">
       <div className="p-4 border-b border-neutral-800 flex items-center justify-between">
-        <h2 className="text-sm font-mono text-neutral-300 flex items-center gap-2">
-          <Network className="w-4 h-4 text-purple-500" />
-          Simulation Engine
-        </h2>
+        <div>
+          <h2 className="text-sm font-mono text-neutral-300 flex items-center gap-2">
+            <Network className="w-4 h-4 text-purple-500" />
+            Simulation Engine
+          </h2>
+          <p className="text-xs font-sans text-neutral-500 mt-1 max-w-xl">
+             Simulate risk-adjusted outcomes before committing real ad-spend. Our stochastic Monte Carlo models test multiple "what-if" scenarios based on your exact ROAS curves.
+          </p>
+        </div>
       </div>
 
       <div className="p-6">

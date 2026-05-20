@@ -23,12 +23,17 @@ export function AutonomyControlPlane() {
 
    return (
     <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-sm text-neutral-200">
-      <div className="p-4 border-b border-neutral-800 flex items-center justify-between">
-        <h2 className="text-sm font-mono text-neutral-300 flex items-center gap-2">
-          <Settings2 className="w-4 h-4 text-orange-500" />
-          Autonomous Control Plane
-        </h2>
-        <div className="flex items-center gap-3">
+      <div className="p-4 border-b border-neutral-800 flex items-center justify-between bg-neutral-900/50">
+        <div>
+          <h2 className="text-sm font-mono text-neutral-300 flex items-center gap-2">
+            <Settings2 className="w-4 h-4 text-orange-500" />
+            Autonomous Control Plane
+          </h2>
+          <p className="text-xs font-sans text-neutral-500 mt-1 max-w-xl">
+            The daemon that monitors your systems 24/7. It detects inefficiencies, formulates actions, and queues them in the Governance Layer.
+          </p>
+        </div>
+        <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5 text-xs font-mono text-emerald-400">
              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
              Engine Active
@@ -36,9 +41,9 @@ export function AutonomyControlPlane() {
           <button 
             onClick={triggerCycle}
             disabled={running}
-            className="text-xs bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white px-3 py-1.5 rounded transition-colors flex items-center gap-1.5"
+            className="text-xs bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white px-3 py-1.5 rounded transition-colors flex items-center gap-1.5 shadow-sm"
           >
-            <RefreshCcw className={`w-3 h-3 ${running ? 'animate-spin' : ''}`} />
+            <RefreshCcw className={`w-3.5 h-3.5 ${running ? 'animate-spin' : ''}`} />
             Force Cycle
           </button>
         </div>

@@ -134,29 +134,33 @@ function Dashboard() {
         </div>
       </header>
 
-      <main className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="col-span-1 md:col-span-2 space-y-6">
+      <main className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+        <div className="xl:col-span-8 space-y-8">
           <StrategicChat />
-          <MemoryEngine />
-          <PPCEngine />
-          <SimulationEngine />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <SimulationEngine />
+            <GovernanceLayer />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+             <AutonomyControlPlane />
+             <AnalyticsEngine />
+          </div>
         </div>
 
-        <div className="space-y-6">
-          <GovernanceLayer />
-          <AutonomyControlPlane />
-          <AnalyticsEngine />
+        <div className="xl:col-span-4 space-y-8">
+          <MemoryEngine />
+          <PPCEngine />
           
-          <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-sm flex flex-col items-center justify-center text-center space-y-4">
-            <h2 className="text-[14px] font-sans font-medium text-white tracking-tight">Need Help?</h2>
-            <p className="text-xs text-neutral-400 font-sans">
-              Learn how to master AEME OS, from data injection to autonomous workflows.
+          <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-sm flex flex-col items-start space-y-4">
+            <h2 className="text-sm font-sans font-medium text-white tracking-tight">System Knowledge Base</h2>
+            <p className="text-xs text-neutral-400 font-sans leading-relaxed">
+              New to AEME? Master the OS in under 5 minutes. Learn how to inject data, run stochastic simulations, and approve autonomous workflows safely.
             </p>
             <a 
               href="https://github.com/meerhamza00/AEME-OS/blob/main/USER_GUIDE.md" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-sans rounded-lg transition-colors border border-neutral-700"
+              className="w-full text-center px-4 py-2.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-sans rounded-lg transition-colors border border-neutral-700 shadow-sm"
             >
               Read the Expert User Guide
             </a>

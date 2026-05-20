@@ -103,20 +103,25 @@ export function GovernanceLayer() {
   return (
     <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-sm text-neutral-200">
       <div className="p-4 border-b border-neutral-800 flex items-center justify-between">
-        <h2 className="text-sm font-mono text-neutral-300 flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-emerald-500" />
-          Governance Control
-        </h2>
+        <div>
+          <h2 className="text-sm font-mono text-neutral-300 flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-emerald-500" />
+            Governance Control
+          </h2>
+          <p className="text-xs font-sans text-neutral-500 mt-1 max-w-xl">
+             Your safety net. Autonomous operations are held here for human-in-the-loop review. Reject or Approve financial execution actions. An indelible audit log ensures compliance.
+          </p>
+        </div>
         <div className="flex gap-2">
           <button 
             onClick={seedDemo}
-            className="text-xs bg-neutral-800 hover:bg-neutral-700 text-neutral-400 px-3 py-1 rounded transition-colors flex items-center gap-1"
+            className="text-xs bg-neutral-800 hover:bg-neutral-700 text-neutral-300 px-3 py-1.5 rounded transition-colors flex items-center gap-1.5 shadow-sm border border-neutral-700"
           >
             Simulate Workflow Alert
           </button>
           <button 
             onClick={handleInit}
-            className="text-xs bg-neutral-800 hover:bg-neutral-700 text-neutral-400 px-3 py-1 rounded transition-colors flex items-center gap-1"
+            className="text-xs bg-neutral-800 hover:bg-neutral-700 text-neutral-300 px-3 py-1.5 rounded transition-colors flex items-center gap-1.5 shadow-sm border border-neutral-700"
           >
             Run DB Migrations
           </button>

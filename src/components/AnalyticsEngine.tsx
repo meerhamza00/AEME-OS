@@ -33,16 +33,21 @@ export function AnalyticsEngine() {
   return (
     <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-sm text-neutral-200">
       <div className="p-4 border-b border-neutral-800 flex items-center justify-between">
-        <h2 className="text-sm font-mono text-neutral-300 flex items-center gap-2">
-          <Activity className="w-4 h-4 text-rose-500" />
-          Analytics Engine
-        </h2>
+        <div>
+          <h2 className="text-sm font-mono text-neutral-300 flex items-center gap-2">
+            <Activity className="w-4 h-4 text-rose-500" />
+            Analytics Engine
+          </h2>
+          <p className="text-xs font-sans text-neutral-500 mt-1 max-w-xl">
+            Diagnoses your raw PPC metrics to detect hidden inefficiencies (like bleeding campaigns) and surfaces structural opportunities for scale.
+          </p>
+        </div>
         <button 
           onClick={runAnalysis}
           disabled={analyzing}
-          className="text-xs bg-rose-600 hover:bg-rose-500 text-white px-3 py-1 rounded transition-colors flex items-center gap-1 disabled:opacity-50"
+          className="text-xs bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded transition-colors flex items-center gap-1.5 shadow-sm disabled:opacity-50"
         >
-          <Play className={`w-3 h-3 ${analyzing ? 'animate-pulse' : ''}`} />
+          <Play className={`w-3.5 h-3.5 ${analyzing ? 'animate-pulse' : ''}`} />
           {analyzing ? 'Analyzing Data...' : 'Run Diagnostics'}
         </button>
       </div>

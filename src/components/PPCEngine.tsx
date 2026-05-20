@@ -80,23 +80,28 @@ export function PPCEngine() {
   return (
     <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-sm text-neutral-200">
       <div className="p-4 border-b border-neutral-800 flex items-center justify-between">
-        <h2 className="text-sm font-mono text-neutral-300 flex items-center gap-2">
-          <BarChart3 className="w-4 h-4 text-emerald-500" />
-          PPC Intelligence Engine
-        </h2>
+        <div>
+          <h2 className="text-sm font-mono text-neutral-300 flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-emerald-500" />
+            PPC Intelligence Engine
+          </h2>
+          <p className="text-xs font-sans text-neutral-500 mt-1 max-w-xl">
+            Ingest and sync live Amazon Ads and Shopify performance data. AEME uses this to identify bleeding campaigns and high-growth opportunities.
+          </p>
+        </div>
         <div className="flex gap-2">
           <button 
             onClick={handleInit}
-            className="text-xs bg-neutral-800 hover:bg-neutral-700 text-neutral-400 px-3 py-1 rounded transition-colors"
+            className="text-xs bg-neutral-800 hover:bg-neutral-700 text-neutral-300 px-3 py-1.5 rounded transition-colors shadow-sm border border-neutral-700"
           >
             Run DB Migrations
           </button>
           <button 
             onClick={handleSync}
             disabled={syncing}
-            className="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded transition-colors flex items-center gap-1 disabled:opacity-50"
+            className="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded transition-colors flex items-center gap-1.5 disabled:opacity-50 shadow-sm"
           >
-            <RefreshCw className={`w-3 h-3 ${syncing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
             Sync Network Data
           </button>
         </div>

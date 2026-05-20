@@ -53,11 +53,14 @@ export function StrategicChat() {
 
   return (
     <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-sm text-neutral-200 flex flex-col h-[600px]">
-      <div className="p-4 border-b border-neutral-800 flex items-center justify-between">
+      <div className="p-4 border-b border-neutral-800 flex flex-col justify-center">
         <h2 className="text-sm font-mono text-neutral-300 flex items-center gap-2">
           <Terminal className="w-4 h-4 text-cyan-500" />
           Strategic Chat System
         </h2>
+        <p className="text-xs font-sans text-neutral-500 mt-1 max-w-xl">
+          Not just a chatbot. The Sovereign Strategist references your entire Memory bank and Live PPC Data to generate high-fidelity tactical recommendations.
+        </p>
       </div>
 
       <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
