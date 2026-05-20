@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ClerkProvider, SignedIn, SignedOut, SignIn, SignUp } from '@clerk/clerk-react';
+import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { ClerkProvider, SignedIn, SignedOut, SignIn, SignUp, UserButton } from '@clerk/clerk-react';
 import { MemoryEngine } from './components/MemoryEngine';
 import { PPCEngine } from './components/PPCEngine';
 import { AnalyticsEngine } from './components/AnalyticsEngine';
@@ -42,7 +42,10 @@ function AuthenticatedApp() {
           <Route 
             path="/sign-in/*" 
             element={
-              <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
+              <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center space-y-6">
+                <div className="text-neutral-400 font-mono text-xs max-w-sm text-center px-4">
+                  Note: If the sign-in widget fails to load, please open the application in a new tab. Browsers may restrict authentication cookies inside iframes.
+                </div>
                 <SignIn routing="path" path="/sign-in" signUpUrl="/sign-up" />
               </div>
             } 
@@ -50,7 +53,10 @@ function AuthenticatedApp() {
           <Route 
             path="/sign-up/*" 
             element={
-              <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
+              <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center space-y-6">
+                <div className="text-neutral-400 font-mono text-xs max-w-sm text-center px-4">
+                  Note: If the sign-in widget fails to load, please open the application in a new tab. Browsers may restrict authentication cookies inside iframes.
+                </div>
                 <SignUp routing="path" path="/sign-up" signInUrl="/sign-in" />
               </div>
             } 
@@ -82,10 +88,10 @@ function AuthenticatedApp() {
                       </p>
 
                       <div className="pt-8">
-                        <a href="/sign-in" className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:pointer-events-none disabled:opacity-50 bg-indigo-600 text-white hover:bg-indigo-600/90 h-10 px-6 py-2 shadow-sm font-mono tracking-tight gap-2">
+                        <Link to="/sign-in" className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:pointer-events-none disabled:opacity-50 bg-indigo-600 text-white hover:bg-indigo-600/90 h-10 px-6 py-2 shadow-sm font-mono tracking-tight gap-2">
                           <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
                           INITIALIZE SYSTEM
-                        </a>
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -124,10 +130,7 @@ function Dashboard() {
           <p className="text-sm font-mono text-neutral-500">Decision Infrastructure Layer</p>
         </div>
         <div className="flex items-center gap-4">
-           {/* Add a user button or sign out button here in a real app via clerk */}
-           <div className="w-8 h-8 rounded-full bg-indigo-900/50 border border-indigo-500/50 flex items-center justify-center">
-             <span className="w-2 h-2 rounded-full bg-indigo-400"></span>
-           </div>
+           <UserButton afterSignOutUrl="/" />
         </div>
       </header>
 
