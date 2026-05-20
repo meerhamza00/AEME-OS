@@ -88,10 +88,10 @@ function AuthenticatedApp() {
                       </p>
 
                       <div className="pt-8">
-                        <Link to="/sign-in" className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:pointer-events-none disabled:opacity-50 bg-indigo-600 text-white hover:bg-indigo-600/90 h-10 px-6 py-2 shadow-sm font-mono tracking-tight gap-2">
+                        <a href="/sign-in" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:pointer-events-none disabled:opacity-50 bg-indigo-600 text-white hover:bg-indigo-600/90 h-10 px-6 py-2 shadow-sm font-mono tracking-tight gap-2">
                           <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-                          INITIALIZE SYSTEM
-                        </Link>
+                          INITIALIZE SYSTEM (OPEN IN NEW TAB)
+                        </a>
                       </div>
                     </div>
                   </div>
@@ -146,6 +146,21 @@ function Dashboard() {
           <GovernanceLayer />
           <AutonomyControlPlane />
           <AnalyticsEngine />
+          
+          <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6 shadow-sm flex flex-col items-center justify-center text-center space-y-4">
+            <h2 className="text-[14px] font-sans font-medium text-white tracking-tight">Need Help?</h2>
+            <p className="text-xs text-neutral-400 font-sans">
+              Learn how to master AEME OS, from data injection to autonomous workflows.
+            </p>
+            <a 
+              href="https://github.com/your-username/aeme-os/blob/main/USER_GUIDE.md" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-sans rounded-lg transition-colors border border-neutral-700"
+            >
+              Read the Expert User Guide
+            </a>
+          </div>
         </div>
       </main>
     </div>

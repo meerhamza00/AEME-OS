@@ -5,6 +5,8 @@ AEME defines a new category: **Autonomous Ecommerce Decision Operating Systems (
 
 Unlike traditional dashboards that tell you "what happened", AEME simulates futures, governs risk, and proposes precise executable actions for growth.
 
+📖 **[Read the Complete Expert User Guide](./USER_GUIDE.md) to master AEME OS from onboarding to full autonomy.**
+
 ## Core Modules
 
 1. **Memory Engine**
