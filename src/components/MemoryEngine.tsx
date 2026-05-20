@@ -10,6 +10,7 @@ export function MemoryEngine() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searching, setSearching] = useState(false);
+  const [customUserId, setCustomUserId] = useState('anonymous');
 
   const handleInit = async () => {
     setStatus('Initializing database...');
@@ -31,7 +32,7 @@ export function MemoryEngine() {
 
     const formData = new FormData();
     formData.append('file', file);
-    if (user) formData.append('userId', user.id);
+    formData.append('userId', customUserId || 'anonymous');
 
     try {
       const res = await fetch('/api/memory/upload', {
@@ -61,7 +62,7 @@ export function MemoryEngine() {
       const res = await fetch('/api/memory/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: searchQuery, userId: user?.id })
+        body: JSON.stringify({ query: searchQuery, userId: customUserId || 'anonymous' })
       });
       const data = await res.json();
       if (res.ok) {
@@ -100,6 +101,22 @@ export function MemoryEngine() {
       </div>
 
       <div className="p-6">
+        <div className="mb-6">
+          <label className="block text-xs font-mono text-neutral-500 uppercase tracking-widest mb-2">
+            Target Context User ID
+          </label>
+          <input 
+            type="text" 
+            value={customUserId}
+            onChange={(e) => setCustomUserId(e.target.value)}
+            placeholder="e.g. 'anonymous', 'user_123'"
+            className="w-full bg-neutral-950 border border-neutral-800 text-sm p-2 rounded focus:ring-1 focus:ring-indigo-500 outline-none text-neutral-200"
+          />
+          <p className="text-xs font-sans text-neutral-600 mt-1">
+            Data ingestion and retrieval will be scoped to this ID.
+          </p>
+        </div>
+
         {status && (
           <div className="mb-6 p-3 bg-neutral-950 border border-neutral-800 text-xs font-mono text-indigo-300 rounded break-words">
             {'>'} {status}

@@ -28,8 +28,18 @@ governanceRouter.post("/init", async (req, res) => {
         user_id VARCHAR(255),
         action VARCHAR(100),
         details TEXT,
+        outcome TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+
+      DO $$ 
+      BEGIN
+          BEGIN
+              ALTER TABLE audit_logs ADD COLUMN outcome TEXT;
+          EXCEPTION
+              WHEN duplicate_column THEN null;
+          END;
+      END $$;
     `);
     res.json({ message: "Governance layer initialized successfully." });
   } catch (error: any) {
@@ -60,7 +70,7 @@ governanceRouter.get("/pending", async (req, res) => {
   try {
     const pool = getDbPool();
     // In real app filter by user_id
-    const result = await pool.query("SELECT * FROM workflows WHERE status = 'pending' ORDER BY created_at DESC");
+    const result = await pool.query("SELECT * FROM workflows ORDER BY created_at DESC");
     res.json({ workflows: result.rows });
   } catch (error: any) {
     res.status(500).json({ error: error.message || String(error) });
@@ -89,9 +99,9 @@ governanceRouter.get("/logs", async (req, res) => {
 governanceRouter.post("/action", async (req, res) => {
   try {
     const pool = getDbPool();
-    const { workflowId, action, userId, comments } = req.body;
+    const { workflowId, action, userId, comments, outcome } = req.body;
     
-    if (!['approve', 'reject', 'execute'].includes(action)) {
+    if (!['approve', 'reject', 'execute', 'fail'].includes(action)) {
        return res.status(400).json({ error: "Invalid action" });
     }
 
@@ -99,14 +109,20 @@ governanceRouter.post("/action", async (req, res) => {
     if (action === 'approve') newStatus = 'approved';
     if (action === 'reject') newStatus = 'rejected';
     if (action === 'execute') newStatus = 'executed';
+    if (action === 'fail') newStatus = 'failed';
 
     await pool.query("UPDATE workflows SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2", [newStatus, workflowId]);
 
     // Log the audit
     const logId = uuidv4();
+    
+    // Add outcome column to insert if it's there? Using exact names is better.
+    // However, if the db hasn't been migrated with `outcome`, this might throw.
+    // The user has to click "Run DB Migrations" anyway. (Better yet, we can do ALTER TABLE in /init)
+    
     await pool.query(
-      "INSERT INTO audit_logs (id, workflow_id, user_id, action, details) VALUES ($1, $2, $3, $4, $5)",
-      [logId, workflowId, userId || 'anonymous', `HUMAN_${action.toUpperCase()}`, comments || 'No comments']
+      "INSERT INTO audit_logs (id, workflow_id, user_id, action, details, outcome) VALUES ($1, $2, $3, $4, $5, $6)",
+      [logId, workflowId, userId || 'anonymous', `HUMAN_${action.toUpperCase()}`, comments || 'No comments', outcome || '']
     );
 
     res.json({ message: `Workflow ${action}d.` });

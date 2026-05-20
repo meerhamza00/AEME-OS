@@ -1,16 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Activity, Settings2, RefreshCcw } from 'lucide-react';
 
 export function AutonomyControlPlane() {
    const [running, setRunning] = useState(false);
    const [lastRun, setLastRun] = useState<string | null>(null);
    const [result, setResult] = useState<any>(null);
+   
+   // New configuration states
+   const [cycleFrequency, setCycleFrequency] = useState(() => localStorage.getItem('aeme_cycle_freq') || 'hourly');
+   const [minRiskLevel, setMinRiskLevel] = useState(() => localStorage.getItem('aeme_min_risk') || 'Low');
+
+   useEffect(() => {
+     localStorage.setItem('aeme_cycle_freq', cycleFrequency);
+     localStorage.setItem('aeme_min_risk', minRiskLevel);
+   }, [cycleFrequency, minRiskLevel]);
 
    const triggerCycle = async () => {
       setRunning(true);
       setResult(null);
       try {
-         const res = await fetch('/api/autonomy/cycle', { method: 'POST' });
+         // In a real app we would pass cycleFrequency and minRiskLevel to configure the backend daemon.
+         const res = await fetch('/api/autonomy/cycle', { 
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({ cycleFrequency, minRiskLevel })
+         });
          const data = await res.json();
          setResult(data);
          setLastRun(new Date().toLocaleTimeString());
@@ -30,13 +44,15 @@ export function AutonomyControlPlane() {
             Autonomous Control Plane
           </h2>
           <p className="text-xs font-sans text-neutral-500 mt-1 max-w-xl">
-            The daemon that monitors your systems 24/7. It detects inefficiencies, formulates actions, and queues them in the Governance Layer.
+            The daemon that monitors your systems. It detects inefficiencies and queues them in the Governance Layer.
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <span className="flex items-center gap-1.5 text-xs font-mono text-emerald-400">
-             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-             Engine Active
+          <span className="flex flex-col items-end gap-1">
+             <span className="flex items-center gap-1.5 text-xs font-mono text-emerald-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Engine Active
+             </span>
           </span>
           <button 
             onClick={triggerCycle}
@@ -49,7 +65,39 @@ export function AutonomyControlPlane() {
         </div>
       </div>
 
-      <div className="p-6">
+      <div className="p-6 space-y-6">
+         {/* Configuration Panel */}
+         <div className="grid grid-cols-2 gap-4">
+           <div>
+             <label className="block text-xs font-mono text-neutral-500 uppercase tracking-widest mb-2">
+               Cycle Frequency
+             </label>
+             <select 
+               value={cycleFrequency} 
+               onChange={(e) => setCycleFrequency(e.target.value)}
+               className="w-full bg-neutral-950 border border-neutral-800 text-sm p-2 rounded focus:ring-1 focus:ring-orange-500 outline-none text-neutral-200"
+             >
+               <option value="hourly">Hourly</option>
+               <option value="daily">Daily</option>
+               <option value="weekly">Weekly</option>
+             </select>
+           </div>
+           <div>
+             <label className="block text-xs font-mono text-neutral-500 uppercase tracking-widest mb-2">
+               Minimum Risk Level
+             </label>
+             <select 
+               value={minRiskLevel} 
+               onChange={(e) => setMinRiskLevel(e.target.value)}
+               className="w-full bg-neutral-950 border border-neutral-800 text-sm p-2 rounded focus:ring-1 focus:ring-orange-500 outline-none text-neutral-200"
+             >
+               <option value="Low">Low (Propose All)</option>
+               <option value="Medium">Medium (Propose Medium/High)</option>
+               <option value="High">High (Propose High Only)</option>
+             </select>
+           </div>
+         </div>
+
          <div className="bg-neutral-950 border border-neutral-800 rounded-lg p-5">
              <div className="flex justify-between items-start border-b border-neutral-800 pb-4 mb-4">
                <div>
