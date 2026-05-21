@@ -92,6 +92,18 @@ ppcRouter.post("/campaigns", async (req, res) => {
   }
 });
 
+// Delete campaign
+ppcRouter.delete("/campaigns/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const pool = getDbPool();
+    await pool.query("DELETE FROM campaigns WHERE id = $1", [id]);
+    res.json({ message: "Campaign deleted successfully" });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || String(error) });
+  }
+});
+
 // Get campaigns
 ppcRouter.get("/campaigns", async (req, res) => {
   try {

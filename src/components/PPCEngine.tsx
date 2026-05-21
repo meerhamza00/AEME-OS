@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart3, RefreshCw, TrendingUp, AlertCircle, ShoppingCart, Activity, Plus, MessageSquare, LineChart as LineChartIcon, X } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, LineChart, Line } from 'recharts';
+import { BarChart3, RefreshCw, TrendingUp, AlertCircle, ShoppingCart, Activity, Plus, MessageSquare, LineChart as LineChartIcon, X, Trash2, Download, ChevronDown, ChevronRight, BarChart as BarChartIcon } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, LineChart, Line, BarChart, Bar } from 'recharts';
 
 interface Metrics {
   total_spend: number;
@@ -18,6 +18,8 @@ interface Campaign {
   spend: string;
   sales: string;
   roas: string;
+  impressions?: string;
+  clicks?: string;
 }
 
 export function PPCEngine() {
@@ -34,6 +36,9 @@ export function PPCEngine() {
   // New campaign modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newCampaign, setNewCampaign] = useState({ name: '', status: 'ENABLED', budget: '', target_roas: '' });
+  
+  // Expandable rows state
+  const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
   const fetchPPCData = async () => {
     try {
@@ -50,6 +55,45 @@ export function PPCEngine() {
     } catch (err: any) {
       console.error("Failed to fetch PPC Data:", err);
     }
+  };
+
+  const handleDeleteCampaign = async (id: string, name: string) => {
+    if (window.confirm(`Are you sure you want to delete campaign "${name}"?`)) {
+      try {
+        const res = await fetch(`/api/ppc/campaigns/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          await fetchPPCData();
+          setStatus(`Successfully deleted campaign "${name}"`);
+        } else {
+          setStatus(`Failed to delete campaign "${name}"`);
+        }
+      } catch (err) {
+        console.error(err);
+        setStatus(`Error deleting campaign`);
+      }
+    }
+  };
+
+  const handleExportCSV = () => {
+    const headers = ['Campaign', 'Status', 'Budget', 'Spend', 'Sales', 'ROAS', 'Impressions', 'Clicks'];
+    const csvRows = [
+      headers.join(','),
+      ...filteredCampaigns.map(c => 
+        `"${c.name}",${c.status},${c.budget},${c.spend},${c.sales},${c.roas},${c.impressions || 0},${c.clicks || 0}`
+      )
+    ];
+    const csvString = csvRows.join('\n');
+    const blob = new Blob([csvString], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'campaigns_export.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const toggleRow = (id: string) => {
+    setExpandedRows(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
   useEffect(() => {
@@ -157,39 +201,39 @@ export function PPCEngine() {
             Ingest and sync live Amazon Ads and Shopify performance data. AEME uses this to identify bleeding campaigns and high-growth opportunities.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2 w-full xl:w-auto">
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            className="flex-1 sm:flex-none text-[clamp(0.7rem,1vw,0.75rem)] bg-[#007AFF] hover:bg-[#005bb5] text-white px-3 py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            New Campaign
-          </button>
-          <button 
-            onClick={handleInit}
-            className="flex-1 sm:flex-none text-[clamp(0.7rem,1vw,0.75rem)] bg-black/5 dark:bg-white/10 hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 px-3 py-2 rounded-lg transition-all shadow-sm border border-neutral-300 dark:border-neutral-700 active:scale-95 text-center"
-          >
-            Run DB Migrations
-          </button>
-          <button 
-            onClick={handleSync}
-            disabled={syncing}
-            className="flex-1 sm:flex-none text-[clamp(0.7rem,1vw,0.75rem)] bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 shadow-sm active:scale-95"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
-            Sync Network Data
-          </button>
+        <div className="flex flex-col items-end gap-2 w-full xl:w-auto">
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="flex-1 sm:flex-none text-[clamp(0.7rem,1vw,0.75rem)] bg-[#007AFF] hover:bg-[#005bb5] text-white px-3 py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              New Campaign
+            </button>
+            <button 
+              onClick={handleInit}
+              className="flex-1 sm:flex-none text-[clamp(0.7rem,1vw,0.75rem)] bg-black/5 dark:bg-white/10 hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 px-3 py-2 rounded-lg transition-all shadow-sm border border-neutral-300 dark:border-neutral-700 active:scale-95 text-center"
+            >
+              Run DB Migrations
+            </button>
+            <button 
+              onClick={handleSync}
+              disabled={syncing}
+              className="flex-1 sm:flex-none text-[clamp(0.7rem,1vw,0.75rem)] bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 shadow-sm active:scale-95"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
+              {syncing ? 'Syncing...' : 'Sync Network Data'}
+            </button>
+          </div>
+          {status && (
+            <div className="w-full text-right text-[10px] sm:text-xs font-mono text-emerald-500 dark:text-emerald-400">
+              {status}
+            </div>
+          )}
         </div>
       </div>
 
       <div className="p-[clamp(1rem,1.5vw,1.5rem)] space-y-[clamp(1rem,1.5vw,1.5rem)] flex-1 overflow-auto custom-scrollbar z-10 relative">
-        {status && (
-          <div className="p-3 bg-white/30 dark:bg-black/30 backdrop-blur-3xl border border-black/5 dark:border-white/10 text-[11px] sm:text-xs font-mono text-emerald-300 rounded-lg break-words shadow-inner flex items-start gap-2">
-            <span className="text-emerald-500">{'>'}</span>
-            <span>{status}</span>
-          </div>
-        )}
-
         <div className="grid grid-cols-1 @sm:grid-cols-3 gap-[clamp(0.75rem,2vw,1rem)] container-type-inline-size">
           <div className="bg-white/30 dark:bg-black/30 backdrop-blur-3xl border border-black/5 dark:border-white/10 p-4 rounded-xl hover:border-neutral-300 dark:border-neutral-700 transition-colors shadow-sm">
             <h4 className="text-[clamp(0.65rem,0.8vw,0.7rem)] font-mono text-neutral-500 dark:text-neutral-500 mb-2 flex items-center gap-2 uppercase tracking-widest">
@@ -250,17 +294,24 @@ export function PPCEngine() {
 
         {campaigns.length > 0 ? (
           <div className="space-y-4">
-            <div className="flex gap-2">
-              <button onClick={() => setFilterStatus('ALL')} className={`px-3 py-1 text-xs font-mono rounded-lg transition-colors border ${filterStatus === 'ALL' ? 'bg-[#007AFF] text-white border-[#007AFF]' : 'bg-transparent text-neutral-500 border-black/5 dark:border-white/10 hover:bg-black/5'}`}>ALL</button>
-              <button onClick={() => setFilterStatus('ENABLED')} className={`px-3 py-1 text-xs font-mono rounded-lg transition-colors border ${filterStatus === 'ENABLED' ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-transparent text-neutral-500 border-black/5 dark:border-white/10 hover:bg-black/5'}`}>ENABLED</button>
-              <button onClick={() => setFilterStatus('PAUSED')} className={`px-3 py-1 text-xs font-mono rounded-lg transition-colors border ${filterStatus === 'PAUSED' ? 'bg-neutral-500 text-white border-neutral-500' : 'bg-transparent text-neutral-500 border-black/5 dark:border-white/10 hover:bg-black/5'}`}>PAUSED</button>
+            <div className="flex justify-between items-center sm:flex-row flex-col gap-3">
+              <div className="flex gap-2 w-full sm:w-auto">
+                <button onClick={() => setFilterStatus('ALL')} className={`flex-1 sm:flex-none px-3 py-1 text-xs font-mono rounded-lg transition-colors border ${filterStatus === 'ALL' ? 'bg-[#007AFF] text-white border-[#007AFF]' : 'bg-transparent text-neutral-500 border-black/5 dark:border-white/10 hover:bg-black/5'}`}>ALL</button>
+                <button onClick={() => setFilterStatus('ENABLED')} className={`flex-1 sm:flex-none px-3 py-1 text-xs font-mono rounded-lg transition-colors border ${filterStatus === 'ENABLED' ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-transparent text-neutral-500 border-black/5 dark:border-white/10 hover:bg-black/5'}`}>ENABLED</button>
+                <button onClick={() => setFilterStatus('PAUSED')} className={`flex-1 sm:flex-none px-3 py-1 text-xs font-mono rounded-lg transition-colors border ${filterStatus === 'PAUSED' ? 'bg-neutral-500 text-white border-neutral-500' : 'bg-transparent text-neutral-500 border-black/5 dark:border-white/10 hover:bg-black/5'}`}>PAUSED</button>
+              </div>
+              <button onClick={handleExportCSV} className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3 py-1 text-xs font-mono rounded-lg transition-colors border bg-white/50 dark:bg-black/20 text-neutral-700 dark:text-neutral-300 border-black/5 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5">
+                <Download className="w-3.5 h-3.5" /> Export CSV
+              </button>
             </div>
+            
             <div className="bg-white/30 dark:bg-black/30 backdrop-blur-3xl border border-black/5 dark:border-white/10 rounded-xl overflow-hidden shadow-sm">
               <div className="overflow-x-auto custom-scrollbar">
-                <table className="w-full text-left border-collapse min-w-[700px]">
+                <table className="w-full text-left border-collapse min-w-[800px]">
                   <thead className="bg-black/5 dark:bg-white/5 backdrop-blur-md">
                     <tr className="border-b border-black/5 dark:border-white/10 text-[11px] font-mono text-neutral-500 dark:text-neutral-500 uppercase tracking-wider">
-                      <th className="px-4 py-3 font-medium sticky left-0 z-20">Campaign</th>
+                      <th className="px-4 py-3 font-medium sticky left-0 z-20 w-10"></th>
+                      <th className="px-4 py-3 font-medium">Campaign</th>
                       <th className="px-4 py-3 font-medium text-center">Status</th>
                       <th className="px-4 py-3 font-medium text-right">Budget (Click to Edit)</th>
                       <th className="px-4 py-3 font-medium text-right">Spend</th>
@@ -271,62 +322,123 @@ export function PPCEngine() {
                   </thead>
                   <tbody className="text-[13px] font-sans text-neutral-700 dark:text-neutral-300">
                     {filteredCampaigns.map((c) => (
-                      <tr key={c.id} className="border-b border-black/5 dark:border-white/10 last:border-0 hover:bg-black/5 dark:hover:bg-white/5 transition-colors group">
-                        <td className="px-4 py-3 sticky left-0 font-medium max-w-[200px] truncate" title={c.name}>{c.name}</td>
-                        <td className="px-4 py-3 text-center">
-                          <span className={`px-2 py-1 rounded-md text-[10px] font-mono tracking-wide ${
-                            c.status === 'ENABLED' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-black/5 dark:bg-white/10 text-neutral-600 dark:text-neutral-400 border border-neutral-300 dark:border-neutral-700'
-                          }`}>
-                            {c.status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-right font-mono" onClick={() => { setEditingBudgetId(c.id); setEditBudgetValue(c.budget); }}>
-                          {editingBudgetId === c.id ? (
-                            <input 
-                              type="number" 
-                              autoFocus
-                              className="w-20 bg-white/50 dark:bg-black/50 border border-[#007AFF] rounded px-2 py-1 text-right text-neutral-900 dark:text-white outline-none"
-                              value={editBudgetValue}
-                              onChange={e => setEditBudgetValue(e.target.value)}
-                              onBlur={() => saveBudget(c.id)}
-                              onKeyDown={e => { if (e.key === 'Enter') saveBudget(c.id); }}
-                            />
-                          ) : (
-                            <span className="cursor-pointer hover:text-[#007AFF] underline decoration-dashed underline-offset-4 decoration-black/20 dark:decoration-white/20 transition-colors">${parseFloat(c.budget).toFixed(2)}</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 text-right font-mono">${parseFloat(c.spend).toFixed(2)}</td>
-                        <td className="px-4 py-3 text-right font-mono text-emerald-400">${parseFloat(c.sales).toFixed(2)}</td>
-                        <td className="px-4 py-3 text-right font-mono text-[#007AFF]">{parseFloat(c.roas).toFixed(2)}x</td>
-                        <td className="px-4 py-3 text-center">
-                           <button onClick={() => askStrategist(c)} className="text-[#007AFF] hover:bg-[#007AFF]/10 p-1.5 rounded-md transition-colors" title="Ask Strategist for Budget Recommendation">
-                             <MessageSquare className="w-4 h-4 mx-auto" />
-                           </button>
-                        </td>
-                      </tr>
+                      <React.Fragment key={c.id}>
+                        <tr className="border-b border-black/5 dark:border-white/10 last:border-0 hover:bg-black/5 dark:hover:bg-white/5 transition-colors group cursor-pointer" onClick={() => toggleRow(c.id)}>
+                          <td className="px-4 py-3 sticky left-0 font-medium w-10 text-neutral-400">
+                            {expandedRows[c.id] ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                          </td>
+                          <td className="px-4 py-3 font-medium max-w-[200px] truncate" title={c.name}>{c.name}</td>
+                          <td className="px-4 py-3 text-center">
+                            <span 
+                              title={c.status === 'ENABLED' ? 'Campaign is active and spending budget' : 'Campaign is paused and not spending'}
+                              className={`px-2 py-1 flex-1 sm:flex-none sm:px-2 rounded-md text-[10px] font-mono tracking-wide cursor-help ${
+                              c.status === 'ENABLED' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-black/5 dark:bg-white/10 text-neutral-600 dark:text-neutral-400 border border-neutral-300 dark:border-neutral-700'
+                            }`}>
+                              {c.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-right font-mono" onClick={(e) => { e.stopPropagation(); setEditingBudgetId(c.id); setEditBudgetValue(c.budget); }}>
+                            {editingBudgetId === c.id ? (
+                              <input 
+                                type="number" 
+                                autoFocus
+                                className="w-20 bg-white/50 dark:bg-black/50 border border-[#007AFF] rounded px-2 py-1 text-right text-neutral-900 dark:text-white outline-none"
+                                value={editBudgetValue}
+                                onChange={e => setEditBudgetValue(e.target.value)}
+                                onBlur={() => saveBudget(c.id)}
+                                onKeyDown={e => { if (e.key === 'Enter') saveBudget(c.id); }}
+                              />
+                            ) : (
+                              <span className="cursor-pointer hover:text-[#007AFF] underline decoration-dashed underline-offset-4 decoration-black/20 dark:decoration-white/20 transition-colors">${parseFloat(c.budget).toFixed(2)}</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-right font-mono">${parseFloat(c.spend).toFixed(2)}</td>
+                          <td className="px-4 py-3 text-right font-mono text-emerald-400">${parseFloat(c.sales).toFixed(2)}</td>
+                          <td className="px-4 py-3 text-right font-mono text-[#007AFF]">{parseFloat(c.roas).toFixed(2)}x</td>
+                          <td className="px-4 py-3 text-center flex items-center justify-center gap-2" onClick={e => e.stopPropagation()}>
+                             <button onClick={() => askStrategist(c)} className="text-[#007AFF] hover:bg-[#007AFF]/10 p-1.5 rounded-md transition-colors" title="Ask Strategist for Budget Recommendation">
+                               <MessageSquare className="w-4 h-4 mx-auto" />
+                             </button>
+                             <button onClick={() => handleDeleteCampaign(c.id, c.name)} className="text-rose-500 hover:bg-rose-500/10 p-1.5 rounded-md transition-colors" title="Delete Campaign">
+                               <Trash2 className="w-4 h-4 mx-auto" />
+                             </button>
+                          </td>
+                        </tr>
+                        {expandedRows[c.id] && (
+                          <tr className="bg-black/5 dark:bg-white/5 border-b border-black/5 dark:border-white/10">
+                            <td colSpan={8} className="p-4">
+                              <div className="grid grid-cols-4 gap-4 max-w-2xl mx-auto text-center font-mono">
+                                <div className="bg-white/50 dark:bg-black/20 p-3 rounded-lg border border-black/5 dark:border-white/10">
+                                  <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1">Impressions</div>
+                                  <div className="text-sm font-semibold">{c.impressions?.toLocaleString() || 0}</div>
+                                </div>
+                                <div className="bg-white/50 dark:bg-black/20 p-3 rounded-lg border border-black/5 dark:border-white/10">
+                                  <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1">Clicks</div>
+                                  <div className="text-sm font-semibold">{c.clicks?.toLocaleString() || 0}</div>
+                                </div>
+                                <div className="bg-white/50 dark:bg-black/20 p-3 rounded-lg border border-black/5 dark:border-white/10">
+                                  <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1">CTR</div>
+                                  <div className="text-sm font-semibold">
+                                    {(c.impressions && c.clicks && parseInt(c.impressions) > 0 
+                                      ? ((parseInt(c.clicks) / parseInt(c.impressions)) * 100).toFixed(2) 
+                                      : 0)}%
+                                  </div>
+                                </div>
+                                <div className="bg-white/50 dark:bg-black/20 p-3 rounded-lg border border-black/5 dark:border-white/10">
+                                  <div className="text-[10px] text-neutral-500 uppercase tracking-widest mb-1">CPC</div>
+                                  <div className="text-sm font-semibold text-[#007AFF]">
+                                    ${(parseFloat(c.spend) / (parseInt(c.clicks || '1') || 1)).toFixed(2)}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
                     ))}
                   </tbody>
                 </table>
               </div>
             </div>
 
-            <div className="bg-white/30 dark:bg-black/30 backdrop-blur-3xl border border-black/5 dark:border-white/10 p-4 rounded-xl shadow-sm h-[300px] w-full mt-4">
-              <h4 className="text-[clamp(0.7rem,1vw,0.75rem)] font-mono text-neutral-700 dark:text-neutral-300 uppercase tracking-widest flex items-center gap-2 mb-4">
-                <LineChartIcon className="w-3.5 h-3.5 text-purple-500" /> ROAS Trends
-              </h4>
-              <ResponsiveContainer width="100%" height="80%">
-                <LineChart data={filteredCampaigns} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(150,150,150,0.1)" />
-                  <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#888' }} tickLine={false} axisLine={false} tickFormatter={(val) => val.slice(0,10) + '...'} />
-                  <YAxis tick={{ fontSize: 10, fill: '#888' }} tickLine={false} axisLine={false} />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: 'none', borderRadius: '8px', fontSize: '12px', color: '#fff' }} 
-                    itemStyle={{ color: '#fff' }} 
-                  />
-                  <Legend iconType="circle" wrapperStyle={{ fontSize: '10px' }} />
-                  <Line type="monotone" dataKey="roas" name="ROAS (x)" stroke="#a855f7" strokeWidth={2} dot={{ r: 4, fill: '#a855f7' }} activeDot={{ r: 6 }} />
-                </LineChart>
-              </ResponsiveContainer>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-white/30 dark:bg-black/30 backdrop-blur-3xl border border-black/5 dark:border-white/10 p-4 rounded-xl shadow-sm h-[300px] w-full">
+                <h4 className="text-[clamp(0.7rem,1vw,0.75rem)] font-mono text-neutral-700 dark:text-neutral-300 uppercase tracking-widest flex items-center gap-2 mb-4">
+                  <LineChartIcon className="w-3.5 h-3.5 text-purple-500" /> ROAS Trends
+                </h4>
+                <ResponsiveContainer width="100%" height="80%">
+                  <LineChart data={filteredCampaigns} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(150,150,150,0.1)" />
+                    <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#888' }} tickLine={false} axisLine={false} tickFormatter={(val) => val.slice(0,10) + '...'} />
+                    <YAxis tick={{ fontSize: 10, fill: '#888' }} tickLine={false} axisLine={false} />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: 'none', borderRadius: '8px', fontSize: '12px', color: '#fff' }} 
+                      itemStyle={{ color: '#fff' }} 
+                    />
+                    <Legend iconType="circle" wrapperStyle={{ fontSize: '10px' }} />
+                    <Line type="monotone" dataKey="roas" name="ROAS (x)" stroke="#a855f7" strokeWidth={2} dot={{ r: 4, fill: '#a855f7' }} activeDot={{ r: 6 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              
+              <div className="bg-white/30 dark:bg-black/30 backdrop-blur-3xl border border-black/5 dark:border-white/10 p-4 rounded-xl shadow-sm h-[300px] w-full">
+                <h4 className="text-[clamp(0.7rem,1vw,0.75rem)] font-mono text-neutral-700 dark:text-neutral-300 uppercase tracking-widest flex items-center gap-2 mb-4">
+                  <BarChartIcon className="w-3.5 h-3.5 text-amber-500" /> Spend by Campaign
+                </h4>
+                <ResponsiveContainer width="100%" height="80%">
+                  <BarChart data={filteredCampaigns} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(150,150,150,0.1)" vertical={false} />
+                    <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#888' }} tickLine={false} axisLine={false} tickFormatter={(val) => val.slice(0,10) + '...'} />
+                    <YAxis tick={{ fontSize: 10, fill: '#888' }} tickLine={false} axisLine={false} />
+                    <Tooltip 
+                      cursor={{fill: 'rgba(255,255,255,0.05)'}}
+                      contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: 'none', borderRadius: '8px', fontSize: '12px', color: '#fff' }} 
+                      itemStyle={{ color: '#fff' }} 
+                    />
+                    <Bar dataKey="spend" name="Spend ($)" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
         ) : (
@@ -362,7 +474,7 @@ export function PPCEngine() {
               </div>
               <div>
                 <label className="block text-xs font-mono text-neutral-500 dark:text-neutral-400 mb-1">Target ROAS (x)</label>
-                <input required type="number" step="0.01" value={newCampaign.target_roas} onChange={e => setNewCampaign({...newCampaign, target_roas: e.target.value})} className="w-full bg-white/50 dark:bg-black/20 border border-black/5 dark:border-white/10 rounded-lg p-2 text-sm text-neutral-900 dark:text-white outline-none focus:ring-1 focus:ring-[#007AFF] transition-colors" />
+                <input type="number" step="0.01" value={newCampaign.target_roas} onChange={e => setNewCampaign({...newCampaign, target_roas: e.target.value})} className="w-full bg-white/50 dark:bg-black/20 border border-black/5 dark:border-white/10 rounded-lg p-2 text-sm text-neutral-900 dark:text-white outline-none focus:ring-1 focus:ring-[#007AFF] transition-colors" />
               </div>
               <button type="submit" className="w-full bg-[#007AFF] hover:bg-[#005bb5] text-white py-2 rounded-lg text-sm font-mono tracking-wide transition-colors mt-2 shadow-sm">
                 Create Campaign

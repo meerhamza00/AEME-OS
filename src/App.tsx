@@ -51,6 +51,9 @@ function AuthenticatedApp() {
             path="/sign-in/*" 
             element={
               <div className="min-h-screen bg-white/30 dark:bg-black/30 backdrop-blur-3xl flex flex-col items-center justify-center space-y-6">
+                <div className="text-neutral-600 dark:text-neutral-400 font-mono text-xs max-w-sm text-center px-4">
+                  Note: If the sign-in widget fails to load, please open the application in a new tab. Browsers may restrict authentication cookies inside iframes.
+                </div>
                 <SignIn routing="path" path="/sign-in" signUpUrl="/sign-up" />
               </div>
             } 
@@ -59,6 +62,9 @@ function AuthenticatedApp() {
             path="/sign-up/*" 
             element={
               <div className="min-h-screen bg-white/30 dark:bg-black/30 backdrop-blur-3xl flex flex-col items-center justify-center space-y-6">
+                <div className="text-neutral-600 dark:text-neutral-400 font-mono text-xs max-w-sm text-center px-4">
+                  Note: If the sign-in widget fails to load, please open the application in a new tab. Browsers may restrict authentication cookies inside iframes.
+                </div>
                 <SignUp routing="path" path="/sign-up" signInUrl="/sign-in" />
               </div>
             } 
@@ -90,10 +96,10 @@ function AuthenticatedApp() {
                       </p>
 
                       <div className="pt-8">
-                        <Link to="/sign-in" className="inline-flex items-center justify-center rounded-full text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] disabled:pointer-events-none disabled:opacity-50 bg-[#007AFF] text-white hover:bg-[#005bb5] h-12 px-8 py-2 shadow-lg hover:shadow-xl hover:-translate-y-0.5 font-sans tracking-tight gap-2 border border-white/20">
+                        <a href="/sign-in" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-full text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] disabled:pointer-events-none disabled:opacity-50 bg-[#007AFF] text-white hover:bg-[#005bb5] h-12 px-8 py-2 shadow-lg hover:shadow-xl hover:-translate-y-0.5 font-sans tracking-tight gap-2 border border-white/20">
                           <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
-                          INITIALIZE SYSTEM
-                        </Link>
+                          INITIALIZE SYSTEM (OPEN IN NEW TAB)
+                        </a>
                       </div>
                     </div>
                   </div>
@@ -187,7 +193,7 @@ function Dashboard() {
 
   return (
     <DensityContext.Provider value={{ density, toggleDensity }}>
-      <div className={`min-h-screen relative overflow-hidden transition-all duration-500 ease-in-out ${density === 'compact' ? 'p-2 sm:p-4' : 'p-4 sm:p-6 md:p-8'}`}>
+      <div className="min-h-screen relative flex flex-col overflow-hidden transition-all duration-500 ease-in-out">
         {/* macOS Wallpaper Background */}
         <div className="absolute inset-0 z-0 bg-gradient-to-br from-indigo-100 via-purple-50 to-teal-50 dark:from-indigo-950 dark:via-purple-900/20 dark:to-teal-950">
           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
@@ -195,18 +201,9 @@ function Dashboard() {
           <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-teal-400/30 dark:bg-teal-600/20 blur-[120px] rounded-full mix-blend-multiply dark:mix-blend-screen pointer-events-none"></div>
         </div>
 
-        <div className="max-w-[1600px] mx-auto flex flex-col h-full min-h-[calc(100vh-theme(spacing.16))] relative z-10 macos-glass rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/5 dark:ring-white/10">
+        <div className="flex flex-col flex-1 w-full relative z-10 bg-white/70 dark:bg-[#1e1e1e]/70 backdrop-blur-3xl overflow-hidden">
           <header className={`flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-black/5 dark:border-white/10 gap-6 backdrop-blur-3xl bg-white/40 dark:bg-[#1e1e1e]/40 py-4 px-6 shrink-0`}>
             <div className="flex items-center gap-6">
-              {/* macOS Window Controls */}
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] cursor-pointer hover:bg-[#ff5f56]/80 flex items-center justify-center group overflow-hidden">
-                   <X className="w-2 h-2 text-black/50 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <div className="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] cursor-pointer hover:bg-[#ffbd2e]/80"></div>
-                <div className="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] cursor-pointer hover:bg-[#27c93f]/80"></div>
-              </div>
-
               <div>
                 <h1 className="text-xl font-sans font-semibold text-neutral-900 dark:text-white tracking-tight leading-none mb-1">
                   AEME OS

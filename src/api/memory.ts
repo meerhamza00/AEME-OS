@@ -90,6 +90,82 @@ memoryRouter.post("/upload", upload.single("file"), async (req, res) => {
   }
 });
 
+// Get Memory Chunks (List)
+memoryRouter.get("/chunks", async (req, res) => {
+  try {
+    const userId = req.query.userId || "anonymous";
+    const pool = getDbPool();
+    const result = await pool.query(
+      "SELECT id, content, created_at FROM memory_chunks WHERE user_id = $1 ORDER BY created_at DESC",
+      [userId]
+    );
+    res.json({ chunks: result.rows });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || String(error) });
+  }
+});
+
+// Delete Memory Chunk
+memoryRouter.delete("/chunks/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const pool = getDbPool();
+    await pool.query("DELETE FROM memory_chunks WHERE id = $1", [id]);
+    res.json({ message: "Chunk deleted successfully." });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || String(error) });
+  }
+});
+
+// Update (Rename/Edit) Memory Chunk
+memoryRouter.put("/chunks/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { content } = req.body;
+    const pool = getDbPool();
+    await pool.query("UPDATE memory_chunks SET content = $1 WHERE id = $2", [content, id]);
+    res.json({ message: "Chunk updated successfully." });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || String(error) });
+  }
+});
+
+// Visualize Embeddings (Experimental 2D Projection)
+memoryRouter.get("/visualize", async (req, res) => {
+  try {
+    const userId = req.query.userId || "anonymous";
+    const pool = getDbPool();
+    // Retrieve embedding and content, parse vector
+    const result = await pool.query(
+      "SELECT id, content, embedding::text FROM memory_chunks WHERE user_id = $1",
+      [userId]
+    );
+    
+    // Naive 2D projection (just taking first two components or mocking PCA for visualization)
+    const points = result.rows.map(row => {
+      // Postgres vector comes as string '[0.1, 0.2, ...]'
+      const vecMatch = row.embedding.match(/\[(.*)\]/);
+      let x = 0, y = 0;
+      if (vecMatch && vecMatch[1]) {
+        const vals = vecMatch[1].split(',').map(Number);
+        // Extremely naive pseudo-PCA: sum of alternate components
+        x = vals.filter((_, i) => i % 2 === 0).reduce((a, b) => a + b, 0);
+        y = vals.filter((_, i) => i % 2 !== 0).reduce((a, b) => a + b, 0);
+      }
+      return {
+        id: row.id,
+        name: row.content.substring(0, 20) + "...",
+        x: x,
+        y: y
+      };
+    });
+    
+    res.json({ points });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || String(error) });
+  }
+});
+
 // Search Memory
 memoryRouter.post("/search", async (req, res) => {
   try {
