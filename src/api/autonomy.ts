@@ -15,21 +15,29 @@ function getAI() {
 autonomyRouter.post("/cycle", async (req, res) => {
   try {
     const pool = getDbPool();
+    const { minRiskLevel, cycleFrequency } = req.body || { minRiskLevel: 'Low', cycleFrequency: 'hourly' };
+
     // 1. Observe: fetch metrics
     const campRes = await pool.query("SELECT * FROM campaigns ORDER BY spend DESC LIMIT 10");
     const campaigns = campRes.rows;
 
     if (campaigns.length === 0) {
-       return res.status(400).json({ error: "No campaigns found to analyze." });
+       return res.status(400).json({ error: "No campaigns found to analyze. Please run DB migrations and sync data first." });
     }
 
     // 2. AI Analyze & Recommend -> Simulate -> Propose
     const ai = getAI();
+    let riskConstraint = "";
+    if (minRiskLevel === 'Medium') riskConstraint = "The proposed action MUST have a riskLevel of 'Medium' or 'High'.";
+    if (minRiskLevel === 'High') riskConstraint = "The proposed action MUST have a riskLevel of 'High'.";
+
     const prompt = `You are the Autonomous Operations Layer for a DTC business. 
+Cycle Frequency: ${cycleFrequency}
 Analyze these campaigns:
 ${JSON.stringify(campaigns)}
 
 Task: Identify ONE critical inefficiency or scaling opportunity. Propose an operational workflow action to fix it. Do not recommend small micro-optimizations, only significant strategic changes.
+${riskConstraint}
 
 Format the response strictly as valid JSON with no markdown formatting or backticks:
 {
