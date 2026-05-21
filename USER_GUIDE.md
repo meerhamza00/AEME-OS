@@ -22,7 +22,7 @@ You are transitioning from an "Operator" to an "Orchestrator". Your primary job 
 ### Step 1: Initialization & Authentication
 1. **Access the System:** Click "INITIALIZE SYSTEM" on the landing page (Make sure to open in a new tab if you are inside an iframe).
 2. **Authenticate:** Sign in using an Enterprise Email or Google Workspace account.
-3. **Configure Workspace Density:** At the top right of the dashboard, use the **Density Toggle** ("Compact View" vs "Comfort View") to adapt the application to your device. Use Comfort for touch displays and Compact for high information-density on a desktop setup.
+3. **Configure Workspace Density & Appearance:** At the top right of the dashboard, use the **Density Toggle** ("Compact" vs "Comfort") to adapt the application to your device. Use the **Theme Toggle** to switch between macOS Light (vibrant glassmorphism) and Dark (graphite transparency) modes.
 4. **Database Spin-Up:** Once in the dashboard, locate the **Governance Control** panel (or **Memory Engine**) and click **"Run DB Migrations"**. This sets up your local execution tables, memory vectors, and audit logs.
 
 ### Step 2: Injecting Memory (The Context Layer)

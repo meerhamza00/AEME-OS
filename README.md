@@ -24,12 +24,13 @@ Unlike traditional dashboards that tell you "what happened", AEME simulates futu
 
 ## Award-Winning UI/UX Architecture
 
-AEME OS is designed with an elite frontend architecture targeting flawless aesthetics and multi-screen responsiveness:
+AEME OS has been upgraded to feature a precise **macOS Tahoe** design language, presenting an elite "Apple-developed" aesthetic optimized for modern capabilities:
 
-- **Advanced Grid & Ultrawide Optimization:** Employs a robust CSS Grid utilizing responsive properties and fluid sizing to maintain aspect ratios and layout integrity up to `1600px` ultra-wide bounds. Container queries (`@container`) ensure every widget gracefully adapts its internal anatomy based on available space rather than raw viewport width.
-- **Fluid Scale & Typography:** Driven by `clamp()` functions for seamless scaling of typography, padding, and gaps across breakpoints—avoiding layout jumping entirely.
-- **Density Control:** The header features a "Compact View" vs. "Comfort View" toggle. It seamlessly animates layout densities to provide high mouse precision for desktop operators, while ensuring 48px+ touch targets on smaller devices via progressive padding adjustments.
-- **Micro-Interactions & Hardware Acceleration:** Leverages Framer Motion (`motion/react`) to deliver physics-based staggering animations on dashboard load. Deep native Dark UI relies on WCAG AAA compliant constrast and nuanced layer shadows.
+- **macOS Tahoe Glassmorphism:** Incorporates deep translucent backgrounds (`backdrop-blur-3xl`) with nuanced material effects, mirroring macOS application windows. The container features macOS-style traffic light window controls.
+- **Apple Typography:** Uses the native Apple font stack (`-apple-system`, `BlinkMacSystemFont`, `SF Pro`) for flawless legibility that mimics native macOS utility applications.
+- **Isolated Modular Workspace:** Built a deeply segmented sidebar navigation system for total visual isolation, eliminating dashboards clutter and preventing cognitive overload. Includes a collapsible translucent navigation bar (`macos-glass-sidebar`).
+- **Dynamic Theme Selection:** Supports universal Light and Dark modes (`.dark` strategy) configurable through the application header. Light mode features vibrant white translucency while dark mode utilizes deep, frosted graphite tones.
+- **Fluid Scale & Density:** Driven by `clamp()` functions for seamless scaling. The header features a "Compact" vs. "Comfort" toggle seamlessly animating layout densities.
 
 ## Technology Stack
 

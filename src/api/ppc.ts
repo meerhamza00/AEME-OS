@@ -58,6 +58,40 @@ ppcRouter.post("/sync", async (req, res) => {
   }
 });
 
+// Update budget
+ppcRouter.put("/campaigns/:id/budget", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { budget } = req.body;
+    const pool = getDbPool();
+    await pool.query(
+      "UPDATE campaigns SET budget = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2",
+      [budget, id]
+    );
+    res.json({ message: "Budget updated successfully" });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || String(error) });
+  }
+});
+
+// Create campaign
+ppcRouter.post("/campaigns", async (req, res) => {
+  try {
+    const pool = getDbPool();
+    const { name, status, budget, target_roas } = req.body;
+    const id = uuidv4();
+    
+    // Simulate initial zero metrics for new campaign
+    await pool.query(
+      "INSERT INTO campaigns (id, name, status, budget, spend, sales, roas, impressions, clicks) VALUES ($1, $2, $3, $4, 0, 0, $5, 0, 0)",
+      [id, name, status, budget, target_roas]
+    );
+    res.json({ message: "Campaign created successfully" });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || String(error) });
+  }
+});
+
 // Get campaigns
 ppcRouter.get("/campaigns", async (req, res) => {
   try {

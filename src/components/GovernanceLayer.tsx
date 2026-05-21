@@ -74,17 +74,28 @@ export function GovernanceLayer() {
 
   const handleWorkflowAction = async (id: string, action: string) => {
     let outcomeStr = '';
+    let finalAction = action;
+
     if (action === 'execute') {
-       outcomeStr = prompt('Enter execution outcome/error message (simulated response from external API):') || 'Workflow executed successfully in external platform.';
+       // Simulate execution api call
+       const success = Math.random() > 0.3; // 70% success rate
+       if (success) {
+          outcomeStr = 'Simulated Execution Success: API Call returned 200 OK. Metric updated.';
+       } else {
+          finalAction = 'fail';
+          outcomeStr = 'Simulated Execution Error: External Platform API Rate Limit Exceeded (429).';
+       }
     } else if (action === 'reject') {
-       outcomeStr = prompt('Enter reason for rejection:') || 'Rejected by user.';
+       outcomeStr = prompt('Enter reason for rejection (optional):') || 'Rejected by user context override.';
+    } else if (action === 'approve') {
+       outcomeStr = 'Approved pending manual review or auto-execution queue.';
     }
 
     try {
       const res = await fetch('/api/governance/action', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ workflowId: id, action, userId: user?.id, outcome: outcomeStr })
+        body: JSON.stringify({ workflowId: id, action: finalAction, userId: user?.id, outcome: outcomeStr })
       });
       if (res.ok) {
         await fetchData(); // Refresh
@@ -122,29 +133,29 @@ export function GovernanceLayer() {
   };
 
   return (
-    <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-sm text-neutral-200 h-full flex flex-col transition-all overflow-hidden relative group">
+    <div className="bg-white/50 dark:bg-black/20 backdrop-blur-xl border border-black/5 dark:border-white/10 rounded-xl shadow-sm text-neutral-800 dark:text-neutral-200 h-full flex flex-col transition-all overflow-hidden relative group">
       <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none"></div>
 
-      <div className="p-[clamp(1rem,1.5vw,1.5rem)] border-b border-neutral-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 z-10 relative">
+      <div className="p-[clamp(1rem,1.5vw,1.5rem)] border-b border-black/5 dark:border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 z-10 relative">
         <div>
-          <h2 className="text-[clamp(0.875rem,1.2vw,1rem)] font-mono text-neutral-300 flex items-center gap-2">
+          <h2 className="text-[clamp(0.875rem,1.2vw,1rem)] font-mono text-neutral-700 dark:text-neutral-300 flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-500" />
             Governance Control
           </h2>
-          <p className="text-[clamp(0.7rem,1vw,0.75rem)] font-sans text-neutral-500 mt-1 max-w-xl">
+          <p className="text-[clamp(0.7rem,1vw,0.75rem)] font-sans text-neutral-500 dark:text-neutral-500 mt-1 max-w-xl">
              Your safety net. Autonomous operations are held here for human-in-the-loop review. Reject or Approve financial execution actions. An indelible audit log ensures compliance.
           </p>
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
           <button 
             onClick={seedDemo}
-            className="flex-1 sm:flex-none text-[clamp(0.7rem,1vw,0.75rem)] bg-neutral-800 hover:bg-neutral-700 text-neutral-300 px-3 py-2 rounded-lg transition-all shadow-sm border border-neutral-700 hover:border-neutral-600 active:scale-95"
+            className="flex-1 sm:flex-none text-[clamp(0.7rem,1vw,0.75rem)] bg-black/5 dark:bg-white/10 hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 px-3 py-2 rounded-lg transition-all shadow-sm border border-neutral-300 dark:border-neutral-700 hover:border-neutral-600 active:scale-95"
           >
             Simulate Workflow Alert
           </button>
           <button 
             onClick={handleInit}
-            className="flex-1 sm:flex-none text-[clamp(0.7rem,1vw,0.75rem)] bg-neutral-800 hover:bg-neutral-700 text-neutral-300 px-3 py-2 rounded-lg transition-all shadow-sm border border-neutral-700 hover:border-neutral-600 active:scale-95"
+            className="flex-1 sm:flex-none text-[clamp(0.7rem,1vw,0.75rem)] bg-black/5 dark:bg-white/10 hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 px-3 py-2 rounded-lg transition-all shadow-sm border border-neutral-300 dark:border-neutral-700 hover:border-neutral-600 active:scale-95"
           >
             Run DB Migrations
           </button>
@@ -152,15 +163,15 @@ export function GovernanceLayer() {
       </div>
 
       <div className="p-[clamp(1rem,1.5vw,1.5rem)] space-y-[clamp(1rem,1.5vw,1.5rem)] flex-1 overflow-auto custom-scrollbar z-10 relative">
-        <div className="flex flex-col sm:flex-row gap-4 sm:items-center bg-neutral-950/50 p-3 rounded-lg border border-neutral-800/50">
+        <div className="flex flex-col sm:flex-row gap-4 sm:items-center bg-white/30 dark:bg-black/30 backdrop-blur-3xl/50 p-3 rounded-lg border border-black/5 dark:border-white/10">
           <div className="flex gap-4 items-center flex-1">
-            <label className="text-[clamp(0.65rem,0.8vw,0.7rem)] font-mono text-neutral-500 uppercase tracking-widest shrink-0">
+            <label className="text-[clamp(0.65rem,0.8vw,0.7rem)] font-mono text-neutral-500 dark:text-neutral-500 uppercase tracking-widest shrink-0">
               Role:
             </label>
             <select 
               value={userRole} 
               onChange={(e) => setUserRole(e.target.value)}
-              className="w-full sm:w-auto bg-neutral-900 border border-neutral-800 text-xs p-1.5 rounded focus:ring-1 focus:ring-emerald-500 outline-none text-neutral-200 transition-colors hover:border-neutral-700"
+              className="w-full sm:w-auto bg-white/50 dark:bg-black/20 backdrop-blur-xl border border-black/5 dark:border-white/10 text-xs p-1.5 rounded focus:ring-1 focus:ring-emerald-500 outline-none text-neutral-800 dark:text-neutral-200 transition-colors hover:border-neutral-300 dark:border-neutral-700"
             >
               <option value="Admin">Admin (All Workflows)</option>
               <option value="Manager">Manager (Medium & Low)</option>
@@ -168,16 +179,16 @@ export function GovernanceLayer() {
             </select>
           </div>
           
-          <div className="hidden sm:block w-px h-6 bg-neutral-800"></div>
+          <div className="hidden sm:block w-px h-6 bg-black/5 dark:bg-white/10"></div>
           
           <div className="flex gap-4 items-center flex-1">
-            <label className="text-[clamp(0.65rem,0.8vw,0.7rem)] font-mono text-neutral-500 uppercase tracking-widest shrink-0">
+            <label className="text-[clamp(0.65rem,0.8vw,0.7rem)] font-mono text-neutral-500 dark:text-neutral-500 uppercase tracking-widest shrink-0">
               Min Risk:
             </label>
             <select 
               value={minRiskTolerance} 
               onChange={(e) => setMinRiskTolerance(e.target.value)}
-              className="w-full sm:w-auto bg-neutral-900 border border-neutral-800 text-xs p-1.5 rounded focus:ring-1 focus:ring-emerald-500 outline-none text-neutral-200 transition-colors hover:border-neutral-700"
+              className="w-full sm:w-auto bg-white/50 dark:bg-black/20 backdrop-blur-xl border border-black/5 dark:border-white/10 text-xs p-1.5 rounded focus:ring-1 focus:ring-emerald-500 outline-none text-neutral-800 dark:text-neutral-200 transition-colors hover:border-neutral-300 dark:border-neutral-700"
             >
               <option value="Low">Low (Show All)</option>
               <option value="Medium">Medium (Medium & High)</option>
@@ -187,7 +198,7 @@ export function GovernanceLayer() {
         </div>
 
         {statusMsg && (
-          <div className="p-3 bg-neutral-950 border border-neutral-800 text-xs font-mono text-emerald-300 rounded-lg break-words flex items-start gap-2 shadow-inner">
+          <div className="p-3 bg-white/30 dark:bg-black/30 backdrop-blur-3xl border border-black/5 dark:border-white/10 text-xs font-mono text-emerald-300 rounded-lg break-words flex items-start gap-2 shadow-inner">
             <span className="text-emerald-500">{'>'}</span> 
             <span>{statusMsg}</span>
           </div>
@@ -195,18 +206,23 @@ export function GovernanceLayer() {
 
         <div className="space-y-[clamp(1rem,2vw,2rem)]">
            <div className="space-y-4">
-             <h3 className="text-[clamp(0.7rem,1vw,0.75rem)] font-mono text-neutral-500 uppercase tracking-widest flex items-center gap-2 border-b border-neutral-800 pb-2">
+             <h3 className="text-[clamp(0.7rem,1vw,0.75rem)] font-mono text-neutral-500 dark:text-neutral-500 uppercase tracking-widest flex items-center gap-2 border-b border-black/5 dark:border-white/10 pb-2">
                <Clock className="w-3.5 h-3.5" /> Autonomous Workflows
              </h3>
              {workflows.length === 0 ? (
-               <div className="text-xs font-mono text-neutral-500 border border-dashed border-neutral-800 rounded bg-neutral-950/50 p-6 flex items-center justify-center min-h-[120px]">
+               <div className="text-xs font-mono text-neutral-500 dark:text-neutral-500 border border-dashed border-black/5 dark:border-white/10 rounded bg-white/30 dark:bg-black/30 backdrop-blur-3xl/50 p-6 flex items-center justify-center min-h-[120px]">
                  No autonomous workflows in queue.
                </div>
              ) : (
                <div className="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-2 pb-4 container-type-inline-size">
                  {workflows.filter(wf => {
+                    // Risk tolerance filter
                     if (minRiskTolerance === 'High' && wf.risk_level !== 'High') return false;
                     if (minRiskTolerance === 'Medium' && wf.risk_level === 'Low') return false;
+                    // Role-based visibility
+                    if (userRole === 'Manager' && wf.risk_level === 'High') return false;
+                    if (userRole === 'Junior' && (wf.risk_level === 'High' || wf.risk_level === 'Medium')) return false;
+                    
                     return true;
                  }).map(wf => {
                    const canAct = userRole === 'Admin' || (userRole === 'Manager' && wf.risk_level !== 'High') || (userRole === 'Junior' && wf.risk_level === 'Low');
@@ -214,27 +230,27 @@ export function GovernanceLayer() {
                    const isCompleted = wf.status === 'approved' || wf.status === 'rejected' || wf.status === 'executed' || wf.status === 'failed';
                    const isPending = wf.status === 'pending';
                    
-                   let finalColor = 'bg-neutral-800';
+                   let finalColor = 'bg-black/5 dark:bg-white/10';
                    let finalLabel = 'Decision';
-                   let finalTextColor = 'text-neutral-500';
+                   let finalTextColor = 'text-neutral-500 dark:text-neutral-500';
                    let line1Color = 'bg-emerald-500/50';
-                   let line2Color = 'bg-neutral-800';
+                   let line2Color = 'bg-black/5 dark:bg-white/10';
 
                    if (wf.status === 'approved') { finalColor = 'bg-emerald-500'; finalLabel = 'Approved'; finalTextColor = 'text-emerald-400'; line2Color = 'bg-emerald-500/50'; }
                    if (wf.status === 'rejected') { finalColor = 'bg-rose-500'; finalLabel = 'Rejected'; finalTextColor = 'text-rose-400'; line2Color = 'bg-rose-500/50'; }
-                   if (wf.status === 'executed') { finalColor = 'bg-indigo-500'; finalLabel = 'Executed'; finalTextColor = 'text-indigo-400'; line2Color = 'bg-indigo-500/50'; }
+                   if (wf.status === 'executed') { finalColor = 'bg-[#007AFF]'; finalLabel = 'Executed'; finalTextColor = 'text-[#007AFF]'; line2Color = 'bg-[#007AFF]/50'; }
                    if (wf.status === 'failed') { finalColor = 'bg-rose-500'; finalLabel = 'Failed'; finalTextColor = 'text-rose-400'; line2Color = 'bg-rose-500/50'; }
 
                    return (
-                   <div key={wf.id} id={`workflow-${wf.id}`} className="bg-neutral-950 border border-neutral-800 p-4 rounded-xl flex flex-col gap-4 shadow-sm hover:border-neutral-700 hover:shadow-md transition-all">
+                   <div key={wf.id} id={`workflow-${wf.id}`} className="bg-white/30 dark:bg-black/30 backdrop-blur-3xl border border-black/5 dark:border-white/10 p-4 rounded-xl flex flex-col gap-4 shadow-sm hover:border-neutral-300 dark:border-neutral-700 hover:shadow-md transition-all">
                      <div className="flex flex-col @md:flex-row justify-between @md:items-start gap-4">
                        <div className="space-y-1.5 flex-1">
                          <div className="flex items-center gap-2 flex-wrap">
                            <span className={`w-2 h-2 rounded-full ${wf.risk_level === 'High' ? 'bg-rose-500' : wf.risk_level==='Medium'?'bg-yellow-500':'bg-emerald-500'} shadow-sm`}></span>
-                           <h4 className="text-sm font-sans font-medium text-white">{wf.title}</h4>
-                           <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded-md border border-neutral-700 text-neutral-400 bg-neutral-900 ml-1">Risk: {wf.risk_level}</span>
+                           <h4 className="text-sm font-sans font-medium text-black dark:text-white">{wf.title}</h4>
+                           <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded-md border border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 bg-white/50 dark:bg-[#1e1e1e]/50 backdrop-blur-3xl ml-1">Risk: {wf.risk_level}</span>
                          </div>
-                         <p className="text-[13px] leading-relaxed text-neutral-400 font-sans">{wf.description}</p>
+                         <p className="text-[13px] leading-relaxed text-neutral-600 dark:text-neutral-400 font-sans">{wf.description}</p>
                        </div>
                        
                        {wf.status === 'pending' && (
@@ -247,7 +263,7 @@ export function GovernanceLayer() {
                                 <button onClick={() => handleWorkflowAction(wf.id, 'approve')} className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 p-2 rounded-lg transition-all active:scale-95" title="Approve">
                                   <Check className="w-4 h-4" />
                                 </button>
-                                <button onClick={() => handleWorkflowAction(wf.id, 'execute')} className="text-[10px] sm:text-xs font-mono tracking-wide px-3 py-1 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 rounded-lg border border-indigo-500/20 uppercase transition-all active:scale-95 h-full">
+                                <button onClick={() => handleWorkflowAction(wf.id, 'execute')} className="text-[10px] sm:text-xs font-mono tracking-wide px-3 py-1 bg-[#007AFF]/10 hover:bg-[#007AFF]/20 text-[#007AFF] rounded-lg border border-indigo-500/20 uppercase transition-all active:scale-95 h-full">
                                   Auto-Execute
                                 </button>
                              </div>
@@ -261,7 +277,7 @@ export function GovernanceLayer() {
                      </div>
                      
                      {/* Visual Progress Indicator */}
-                     <div className="mt-2 pt-4 pb-4 border-t border-neutral-800 flex items-center w-full px-2 @md:px-8">
+                     <div className="mt-2 pt-4 pb-4 border-t border-black/5 dark:border-white/10 flex items-center w-full px-2 @md:px-8">
                         <div className="flex flex-col items-center relative z-10 box-border">
                             <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 mb-1 ring-4 ring-neutral-950"></div>
                             <span className="text-[10px] font-mono text-emerald-400 absolute top-5">Proposed</span>
@@ -284,42 +300,42 @@ export function GovernanceLayer() {
            </div>
 
            <div className="space-y-4">
-             <h3 className="text-[clamp(0.7rem,1vw,0.75rem)] font-mono text-neutral-500 uppercase tracking-widest flex items-center gap-2 border-b border-neutral-800 pb-2">
+             <h3 className="text-[clamp(0.7rem,1vw,0.75rem)] font-mono text-neutral-500 dark:text-neutral-500 uppercase tracking-widest flex items-center gap-2 border-b border-black/5 dark:border-white/10 pb-2">
                <AlertTriangle className="w-3.5 h-3.5" /> Audit Log
              </h3>
-             <div className="bg-neutral-950 border border-neutral-800 rounded-xl max-h-[300px] overflow-hidden flex flex-col relative w-full">
+             <div className="bg-white/30 dark:bg-black/30 backdrop-blur-3xl border border-black/5 dark:border-white/10 rounded-xl max-h-[300px] overflow-hidden flex flex-col relative w-full">
                {logs.length === 0 ? (
                  <div className="p-6 text-sm font-mono text-neutral-600 text-center flex items-center justify-center min-h-[100px]">No audit history.</div>
                ) : (
                  <div className="overflow-x-auto custom-scrollbar w-full flex-1">
                    <table className="w-full text-left min-w-[600px] border-collapse relative">
-                     <thead className="bg-neutral-900 border-b border-neutral-800 text-[11px] font-mono text-neutral-500 uppercase tracking-wider sticky top-0 z-20">
+                     <thead className="bg-white/50 dark:bg-[#1e1e1e]/50 backdrop-blur-3xl border-b border-black/5 dark:border-white/10 text-[11px] font-mono text-neutral-500 dark:text-neutral-500 uppercase tracking-wider sticky top-0 z-20">
                        <tr>
                          <th className="px-4 py-3 font-medium w-[140px] whitespace-nowrap">Timestamp</th>
                          <th className="px-4 py-3 font-medium w-[120px]">Action</th>
                          <th className="px-4 py-3 font-medium">Target / Outcome</th>
                        </tr>
                      </thead>
-                     <tbody className="text-[13px] font-mono text-neutral-300">
+                     <tbody className="text-[13px] font-mono text-neutral-700 dark:text-neutral-300">
                        {logs.map((log: any) => (
-                         <tr key={log.id} className="border-b border-neutral-800/50 last:border-0 hover:bg-neutral-800/30 transition-colors group">
-                           <td className="px-4 py-3 text-neutral-500 whitespace-nowrap align-top pt-4">{new Date(log.created_at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</td>
+                         <tr key={log.id} className="border-b border-black/5 dark:border-white/10 last:border-0 hover:bg-neutral-800/30 transition-colors group">
+                           <td className="px-4 py-3 text-neutral-500 dark:text-neutral-500 whitespace-nowrap align-top pt-4">{new Date(log.created_at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</td>
                            <td className="px-4 py-3 align-top pt-3.5">
                               <span className={`px-2 py-1 rounded-md border text-[10px] tracking-wide inline-block ${
                                 log.action.includes('APPROVE') ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
                                 log.action.includes('REJECT') ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' :
-                                log.action.includes('EXECUTE') ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400' :
-                                'bg-neutral-800 border-neutral-700 text-neutral-400'
+                                log.action.includes('EXECUTE') ? 'bg-[#007AFF]/10 border-indigo-500/20 text-[#007AFF]' :
+                                'bg-black/5 dark:bg-white/10 border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400'
                               }`}>
                                 {log.action}
                               </span>
                            </td>
                            <td className="px-4 py-3 align-top">
-                             <a href={`#workflow-${log.workflow_id}`} className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors inline-block mb-1 border-b border-transparent hover:border-indigo-400">
+                             <a href={`#workflow-${log.workflow_id}`} className="font-medium text-[#007AFF] hover:text-indigo-300 transition-colors inline-block mb-1 border-b border-transparent hover:border-indigo-400">
                                {log.workflow_title || 'Unknown Workflow'}
                              </a>
                              {log.outcome && (
-                               <div className="text-neutral-400 mt-1.5 whitespace-pre-wrap leading-relaxed text-xs p-2 bg-neutral-900/50 rounded border border-neutral-800/50 group-hover:border-neutral-800 transition-colors">{log.outcome}</div>
+                               <div className="text-neutral-600 dark:text-neutral-400 mt-1.5 whitespace-pre-wrap leading-relaxed text-xs p-2 bg-black/5 dark:bg-white/5 backdrop-blur-md rounded border border-black/5 dark:border-white/10 group-hover:border-black/5 dark:border-white/10 transition-colors">{log.outcome}</div>
                              )}
                            </td>
                          </tr>
