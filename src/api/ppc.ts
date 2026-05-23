@@ -19,9 +19,18 @@ ppcRouter.post("/init", async (req, res) => {
         roas NUMERIC(5, 2),
         impressions INTEGER,
         clicks INTEGER,
+        notes TEXT,
+        display_order INTEGER DEFAULT 0,
+        auto_optimize BOOLEAN DEFAULT false,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
+    
+    try { 
+      await pool.query(`ALTER TABLE campaigns ADD COLUMN notes TEXT`); 
+      await pool.query(`ALTER TABLE campaigns ADD COLUMN display_order INTEGER DEFAULT 0`);
+      await pool.query(`ALTER TABLE campaigns ADD COLUMN auto_optimize BOOLEAN DEFAULT false`);
+    } catch (e) {}
     res.json({ message: "PPC Engine database initialized successfully." });
   } catch (error: any) {
     res.status(500).json({ error: error.message || String(error) });
@@ -47,12 +56,155 @@ ppcRouter.post("/sync", async (req, res) => {
 
     for (const c of mockCampaigns) {
       await pool.query(
-        "INSERT INTO campaigns (id, name, status, budget, spend, sales, roas, impressions, clicks) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
+        "INSERT INTO campaigns (id, name, status, budget, spend, sales, roas, impressions, clicks, notes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, '')",
         [c.id, c.name, c.status, c.budget, c.spend, c.sales, c.roas, c.impressions, c.clicks]
       );
     }
 
     res.json({ message: `Successfully synced ${mockCampaigns.length} campaigns from ad network.`, count: mockCampaigns.length });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || String(error) });
+  }
+});
+
+// Bulk update notes
+ppcRouter.put("/campaigns/notes/bulk", async (req, res) => {
+  try {
+    const { ids, notes } = req.body;
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ error: "No campaign IDs provided" });
+    }
+    const pool = getDbPool();
+    const placeholders = ids.map((_, i) => `$${i + 2}`).join(',');
+    await pool.query(
+      `UPDATE campaigns SET notes = $1, updated_at = CURRENT_TIMESTAMP WHERE id IN (${placeholders})`,
+      [notes, ...ids]
+    );
+    res.json({ message: `Successfully updated notes for ${ids.length} campaigns` });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || String(error) });
+  }
+});
+
+// Bulk update budget
+ppcRouter.put("/campaigns/budget/bulk", async (req, res) => {
+  try {
+    const { ids, action, value } = req.body;
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ error: "No campaign IDs provided" });
+    }
+    const pool = getDbPool();
+    const val = parseFloat(value);
+    
+    // For simplicity with math, updating iteratively inside a transaction
+    await pool.query("BEGIN");
+    for (const id of ids) {
+       if (action === 'set') {
+         await pool.query("UPDATE campaigns SET budget = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2", [val, id]);
+       } else if (action === 'increase') {
+         await pool.query("UPDATE campaigns SET budget = budget * (1 + $1/100.0), updated_at = CURRENT_TIMESTAMP WHERE id = $2", [val, id]);
+       } else if (action === 'decrease') {
+         await pool.query("UPDATE campaigns SET budget = budget * (1 - $1/100.0), updated_at = CURRENT_TIMESTAMP WHERE id = $2", [val, id]);
+       }
+    }
+    await pool.query("COMMIT");
+    res.json({ message: `Successfully updated budgets for ${ids.length} campaigns` });
+  } catch (error: any) {
+    const pool = getDbPool();
+    await pool.query("ROLLBACK");
+    res.status(500).json({ error: error.message || String(error) });
+  }
+});
+
+// Bulk update status
+ppcRouter.put("/campaigns/status", async (req, res) => {
+  try {
+    const { ids, status } = req.body;
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ error: "No campaign IDs provided" });
+    }
+    const pool = getDbPool();
+    const placeholders = ids.map((_, i) => `$${i + 2}`).join(',');
+    await pool.query(
+      `UPDATE campaigns SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id IN (${placeholders})`,
+      [status, ...ids]
+    );
+    res.json({ message: `Successfully updated ${ids.length} campaigns to ${status}` });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || String(error) });
+  }
+});
+
+// Bulk rollback
+ppcRouter.put("/campaigns/bulk/rollback", async (req, res) => {
+  try {
+    const { type, data } = req.body;
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      return res.status(400).json({ error: "No rollback data provided" });
+    }
+    const pool = getDbPool();
+    await pool.query("BEGIN");
+    for (const item of data) {
+       if (type === 'STATUS') {
+         await pool.query("UPDATE campaigns SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2", [item.status, item.id]);
+       } else if (type === 'BUDGET') {
+         await pool.query("UPDATE campaigns SET budget = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2", [item.budget, item.id]);
+       }
+    }
+    await pool.query("COMMIT");
+    res.json({ message: `Successfully rolled back ${data.length} campaigns` });
+  } catch (error: any) {
+    const pool = getDbPool();
+    await pool.query("ROLLBACK");
+    res.status(500).json({ error: error.message || String(error) });
+  }
+});
+
+// Update notes
+ppcRouter.put("/campaigns/:id/notes", async (req, res) => {
+  try {
+    const { notes } = req.body;
+    const pool = getDbPool();
+    await pool.query(
+      "UPDATE campaigns SET notes = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2",
+      [notes, req.params.id]
+    );
+    res.json({ message: "Notes updated successfully" });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || String(error) });
+  }
+});
+
+// Update auto_optimize
+ppcRouter.put("/campaigns/:id/auto_optimize", async (req, res) => {
+  try {
+    const { auto_optimize } = req.body;
+    const pool = getDbPool();
+    await pool.query(
+      "UPDATE campaigns SET auto_optimize = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2",
+      [auto_optimize, req.params.id]
+    );
+    res.json({ message: "Auto-optimize updated successfully" });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || String(error) });
+  }
+});
+
+// Reorder campaigns
+ppcRouter.put("/campaigns/reorder", async (req, res) => {
+  try {
+    const { updates } = req.body; // Array of { id, display_order }
+    if (!updates || !Array.isArray(updates)) return res.status(400).json({ error: "Invalid updates format" });
+    const pool = getDbPool();
+    
+    // Process in a transaction or individually
+    for (const u of updates) {
+      await pool.query(
+        "UPDATE campaigns SET display_order = $1 WHERE id = $2",
+        [u.display_order, u.id]
+      );
+    }
+    res.json({ message: "Reordered successfully" });
   } catch (error: any) {
     res.status(500).json({ error: error.message || String(error) });
   }
@@ -83,7 +235,7 @@ ppcRouter.post("/campaigns", async (req, res) => {
     
     // Simulate initial zero metrics for new campaign
     await pool.query(
-      "INSERT INTO campaigns (id, name, status, budget, spend, sales, roas, impressions, clicks) VALUES ($1, $2, $3, $4, 0, 0, $5, 0, 0)",
+      "INSERT INTO campaigns (id, name, status, budget, spend, sales, roas, impressions, clicks, notes) VALUES ($1, $2, $3, $4, 0, 0, $5, 0, 0, '')",
       [id, name, status, budget, target_roas]
     );
     res.json({ message: "Campaign created successfully" });
